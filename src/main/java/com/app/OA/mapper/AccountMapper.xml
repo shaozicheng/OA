@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.OA.dao.AccountDao">
+	
+	<!--获取指定用户信息-->
+	<select id="selectOneUser" parameterType="String"  resultType="com.app.OA.domain.User">
+		select name,passWard,userName ,roleGrade ,status from 
+		oa_account
+		where 1=1
+		and name = #{name}
+		
+	</select>
+
+	<!--更新指定用户登录状态为登录-->
+	<update id="updateLoginTime" parameterType="String">
+		update oa_account set
+		status = 1,
+		lastLoginTime = #{loginTime}
+		where name= #{name}
+	</update>
+
+	<!--新增用户-->
+	<insert id="register" parameterType="com.app.OA.domain.User">
+		insert into oa_account (
+			guid,
+			name,
+			passWard,
+			userName,
+			userPhone,
+			userSex,
+			userBoth,
+			roleGrade,
+			createTime,
+			status
+		) values(
+			#{user.guid},
+			#{user.name},
+			#{user.passWard},
+			#{user.userName},
+			#{user.userPhone},
+			#{user.userSex},
+			#{user.userBoth},
+			#{user.roleGrade},
+			#{user.createTime},
+			0
+		)
+	</insert>
+	
+	<!--更新指定用户登录状态为退出-->
+	<update id="logout" parameterType="String">
+		update oa_account set
+		status = 0,
+		lastOutTime = #{logoutTime}
+		where name= #{name}
+	</update>
+	
+	<!--修改用户信息-->
+	<update id="modify" parameterType="com.app.OA.domain.User">
+		update oa_account set
+			passWard = #{user.passWard},
+			userName = #{user.userName},
+			updateTime = #{user.updateTime},
+			roleGrade = #{user.roleGrade},
+			userPhone = #{user.userPhone},
+			userSex = #{user.userSex},
+			userBoth = #{user.userBoth}
+		where 
+			name = #{user.name}
+	</update>
+	
+	<!--获取所有管理员-->
+	<select id="queryAllUser" parameterType="com.app.OA.domain.User" resultType="com.app.OA.domain.User">
+			select a.*,b.roleName roleName from
+		   		(
+ 				select * from oa_account 
+					where 1=1 
+					<if test='user.name != null and user.name != ""'>				
+						and  userName LIKE "%"#{user.name}"%" 
+					</if>
+				UNION
+				select * from oa_account 
+					where 1=1 			
+					<if test='user.name != null and user.name != ""'>	
+						and  userPhone LIKE "%"#{user.name}"%"  
+					</if>
+				UNION
+				select * from oa_account 
+					where 1=1 	
+					<if test='user.name != null and user.name != ""'>			
+						and  name LIKE "%"#{user.name}"%"  
+					</if>
+				)a,oa_role b
+				where a.roleGrade = b.id
+			    limit #{user.id},#{user.userSex}
+	</select>
+
+	<!-- 删除用户 -->
+	<delete id="delete" parameterType="String">
+		delete from oa_account where  name= #{name}
+	</delete>
+	
+	<!--获取指定用户信息-->
+	<select id="checkPower" parameterType="String"  resultType="Integer">
+		select roleGrade from 
+		oa_account
+		where 1=1
+		and name = #{name}
+	</select>
+	
+	<!--获得角色所拥有的权限组合-->
+	<select id="getUserPower" parameterType="Integer"  resultType="String">
+		select powerGrade from 
+		oa_role
+		where 1=1
+		and id = #{roleNum}
+	</select>
+	
+	<!-- 获取用户信息 -->
+	<select id="getUser" parameterType="String" resultType="com.app.OA.domain.User" >
+		select * from oa_account 
+			where name = #{name}
+	</select>
+	
+	<!-- 获取预约挂号列表 -->
+	<select id="getBookList" parameterType="com.app.OA.domain.User"   resultType="com.app.OA.domain.BookPatient">
+		
+		select a.* ,b.patientName,b.patientPhone,b.identityCard from
+		(	
+			select * from oa_book_patient 
+			where 1=1
+			<if test='user.name != null and user.name != ""'>
+				and  doc LIKE "%"#{user.name}"%"
+			</if>
+			UNION
+			select * from oa_book_patient 
+			where 1=1
+			<if test='user.name != null and user.name != ""'>
+				and  dept LIKE "%"#{user.name}"%"
+			</if>
+		) a,oa_patient b
+			where 1=1 
+			and a.patientID = b.patientID
+		UNION
+		select a.* ,b.patientName,b.patientPhone,b.identityCard from
+		(select * from oa_book_patient )a,oa_patient b
+		where 1=1 
+		and a.patientID = b.patientID
+		<if test='user.name != null and user.name != ""'>
+			and  b.patientName LIKE "%"#{user.name}"%" 
+		</if>
+		limit #{user.id},#{user.userSex}
+		
+	</select>
+	
+	<!-- 获取预约挂号列表总条数-->
+	<select id="getBookListCount" parameterType="com.app.OA.domain.User"   resultType="Integer">
+		
+		select count(*) from (
+		select a.* ,b.patientName,b.patientPhone,b.identityCard from
+		(	
+			select * from oa_book_patient 
+			where 1=1
+			<if test='user.name != null and user.name != ""'>
+				and  doc LIKE "%"#{user.name}"%"
+			</if>
+			UNION
+			select * from oa_book_patient 
+			where 1=1
+			<if test='user.name != null and user.name != ""'>
+				and  dept LIKE "%"#{user.name}"%"
+			</if>
+		) a,oa_patient b
+			where 1=1 
+			and a.patientID = b.patientID
+		UNION
+		select a.* ,b.patientName,b.patientPhone,b.identityCard from
+		(select * from oa_book_patient )a,oa_patient b
+		where 1=1 
+		and a.patientID = b.patientID
+		<if test='user.name != null and user.name != ""'>
+			and  b.patientName LIKE "%"#{user.name}"%" 
+		</if>
+		) c
+		
+	</select>
+	
+	<!-- 记录用户日志 -->
+	<insert id="addLog" parameterType="String">
+		insert into oa_log(
+			name,
+			active,
+			time
+		)values(
+			#{name},
+			#{active},
+			#{loginTime}
+		)
+	</insert>
+	
+	<!-- 定时删除日志 -->
+	<delete id="deleteLogByTime" parameterType="String">
+		delete from oa_log where  time <![CDATA[ < ]]> #{loginTime}
+	</delete> 
+	
+	<!-- 验证账户名是否存在 -->
+	<select id="checkName" parameterType="String" >
+		select count(1) from oa_account where name = #{userName}
+		
+	</select>
+	
+	<!-- 清空登录状态 -->
+	<update id="clearStatus">
+		update oa_account set
+			status = 0 
+			where 1=1
+			<if test='name != null and name != ""'>
+			and  name LIKE "%"#{name}"%" 
+		</if>
+	</update>
+	
+	<!-- 查询所有管理员总数 -->
+	<select id="queryAllUserCount" parameterType="com.app.OA.domain.User"   resultType="Integer">
+		select count(*) from (
+			select a.*,b.roleName roleName from
+		   		(
+ 				select * from oa_account 
+					where 1=1 
+					<if test='user.name != null and user.name != ""'>				
+						and  userName LIKE "%"#{user.name}"%" 
+					</if>
+				UNION
+				select * from oa_account 
+					where 1=1 			
+					<if test='user.name != null and user.name != ""'>	
+						and  userPhone LIKE "%"#{user.name}"%"  
+					</if>
+				UNION
+				select * from oa_account 
+					where 1=1 	
+					<if test='user.name != null and user.name != ""'>			
+						and  name LIKE "%"#{user.name}"%"  
+					</if>
+				)a,oa_role b
+				where a.roleGrade = b.id
+			) c
+	</select>
+	
+	<!-- 获取用户 -->
+	<select id="getWechat" parameterType="com.app.OA.domain.User" resultType="com.app.OA.domain.User">
+		select a.* from (
+			select identityCard userBoth,userPhone ,userName from oa_wechat
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  userPhone LIKE "%"#{user.name}"%" 
+						</if>
+				UNION
+			select identityCard userBoth,userPhone ,userName from oa_wechat
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  userName LIKE "%"#{user.name}"%" 
+						</if>
+		) a
+		where 1=1
+		limit #{user.id},#{user.userSex}	
+	</select>
+	
+	<!-- 获取用户总数 -->
+	<select id="getWechatCount" parameterType="com.app.OA.domain.User"   resultType="Integer">
+		select count(*) from (
+			select identityCard userBoth,userPhone ,userName from oa_wechat
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  userPhone LIKE "%"#{user.name}"%" 
+						</if>
+				UNION
+			select identityCard userBoth,userPhone ,userName from oa_wechat
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  userName LIKE "%"#{user.name}"%" 
+						</if>
+		) a
+		
+	</select>
+	
+	<!-- 获取日志信息 -->
+	<select id="getLogin" parameterType="com.app.OA.domain.User" resultType="com.app.OA.domain.User">
+		select a.* from (
+			select name name,active passWard,time updateTime from oa_log
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  name LIKE "%"#{user.name}"%" 
+						</if>
+				UNION
+			select name name,active passWard,time updateTime  from oa_log
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  active LIKE "%"#{user.name}"%" 
+						</if>
+				UNION
+			select name name,active passWard,time updateTime  from oa_log
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  time LIKE "%"#{user.name}"%" 
+						</if>
+		) a
+		where 1=1
+		limit #{user.id},#{user.userSex}	
+	</select>
+	
+	<!-- 获取日志信息总数 -->
+	<select id="getLoginCount" parameterType="com.app.OA.domain.User"   resultType="Integer">
+		select count(*) from (
+			select name name,active passWard,time updateTime from oa_log
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  name LIKE "%"#{user.name}"%" 
+						</if>
+				UNION
+			select name name,active passWard,time updateTime  from oa_log
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  active LIKE "%"#{user.name}"%" 
+						</if>
+				UNION
+			select name name,active passWard,time updateTime  from oa_log
+				where 1=1 
+						<if test='user.name != null and user.name != ""'>				
+							and  time LIKE "%"#{user.name}"%" 
+						</if>
+		) a
+		
+	</select>
+	
+	
+</mapper>

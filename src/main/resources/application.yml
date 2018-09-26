@@ -1,0 +1,84 @@
+#公共配置
+spring:
+  profiles: 
+    active: test
+  application: 
+    name: OA
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  messages:
+    encoding: UTF-8
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid: 
+      initial-size: 20
+      max-active: 300
+      min-idle: 5
+      max-wait: 60000
+      pool-prepared-statements: false
+      validation-query: SELECT 'x'
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 30000
+      max-pool-prepared-statement-per-connection-size: 20 
+    tomcat: 
+      test-on-borrow: true
+      test-while-idle: true
+      validation-query: select 1 from dual
+      validation-query-timeout: 5
+      remove-abandoned: true
+      remove-abandoned-timeout: 120
+  cache:
+    type: redis  
+    cache-names: redis_cache , ehcache
+    redis:
+      time-to-live: 60000
+  mvc:
+    static-path-pattern: /**   
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${web.upload-path}
+web:
+  upload-path: C:/Program Files/app/photo/ 
+           
+jedis:
+    pool: 
+      host: 127.0.0.1
+      port: 6379
+      password: password
+      timeout: 0
+      config:
+      maxTotal: 100
+      maxIdle: 10
+      maxWaitMillis: 100000
+
+ 
+ 
+server :
+  port: 8082
+  session:
+    timeout: 60
+  tomcat:
+    max-threads: 500
+    uri-encoding: UTF-8
+  
+mybatis:
+  mapper-locations: classpath:com/app/OA/mapper/*.xml
+  
+    
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://127.0.0.1/test?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
+    username: root
+    password: YJjk_2018
+
+logging:
+  file: logs/${spring.application.name}.log
+  level:
+    com.example.demo: DEBUG    
+            

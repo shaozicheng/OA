@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.OA.dao.PowerDao">
+
+	<!--新增权限-->
+	<insert id="add" parameterType="com.app.OA.domain.Power">
+		insert into oa_power (
+			powerName,
+			createUser,
+			createTime,
+			explains
+		) values(
+			#{power.powerName},
+			#{power.createUser},
+			#{power.createTime},
+			#{power.explains}
+		)
+	</insert>
+	
+	<!--删除权限-->
+	<delete id="delete" parameterType="Integer">
+		delete from oa_power where  id= #{id}
+	</delete>
+
+	<!--修改权限-->
+	<update id="update" parameterType="com.app.OA.domain.Power">
+		update  oa_power set
+			powerName = #{power.powerName},
+			updateUser = #{power.updateUser},
+			updateTime = #{power.updateTime},
+			explains = #{power.explains}
+		where 
+			id= #{power.id}
+	</update>
+
+	<!-- 查询所有权限 -->
+	<select id="selectAll" resultType="com.app.OA.domain.Power">
+		select * from oa_power
+	</select>
+
+</mapper>

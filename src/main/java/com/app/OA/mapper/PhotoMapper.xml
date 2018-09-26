@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.OA.dao.PhotoDao">
+
+	<!-- 插入新的图 -->
+	<insert id="add" parameterType="com.app.OA.domain.Photo"  >
+		insert into oa_photo(
+			photo,
+			text,
+			title,
+			createUserId,
+			createTime,
+			status,
+			type,
+			top
+			)
+		values(
+			#{photo.photo},
+			#{photo.text},
+			#{photo.title},		
+			#{photo.createUserId},
+			#{photo.createTime},
+			0,
+			#{photo.type},
+			#{photo.top}
+			)
+	
+	</insert>
+
+	<!-- 删除选中的图 -->
+	<delete id="delete" parameterType="Integer">
+		delete from oa_photo
+		where id = #{id}
+	</delete>
+	
+	<!-- 修改图(修改图片相关 ) -->
+	<update id="updatePhoto" parameterType="com.app.OA.domain.Photo">
+		update oa_photo set
+			text = #{photo.text},
+			title = #{photo.title},
+			photo = #{photo.photo},
+			updateUserId = #{photo.updateUserId},
+			updateTime = #{photo.updateTime},
+			top = #{photo.top} 
+		where id = #{photo.id}
+	</update>
+	
+	<!-- 查找所有的图 -->
+	<select id="selectAllPhoto" parameterType="com.app.OA.domain.Photo" resultType="com.app.OA.domain.Photo">
+		select * from 
+			oa_photo
+		where 1=1
+		and type = #{photo.type}
+		<if test='photo.title != null and photo.title != ""'>				
+				and  title LIKE "%"#{photo.title}"%" 
+		</if>
+		order by createTime desc
+		limit #{photo.id},#{photo.status}
+	</select>
+	
+	<!-- 更改图状态 -->
+	<update id="changeStatus" parameterType="Integer">
+		update oa_photo set
+			status = #{status}
+		where id = #{id}
+	</update>
+	
+	<!-- 查找所有的图总数 -->
+	<select id="selectAllPhotoCount"  parameterType="com.app.OA.domain.Photo"  resultType="Integer">
+		select count(*) from 
+			oa_photo
+		where 1=1
+		and type = #{photo.type}
+		<if test='photo.title != null and photo.title != ""'>				
+				and  title LIKE "%"#{photo.title}"%" 
+		</if>
+	</select>
+	
+</mapper>

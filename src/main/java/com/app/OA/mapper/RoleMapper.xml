@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.OA.dao.RoleDao">
+
+	<!--新增角色-->
+	<insert id="add" parameterType="com.app.OA.domain.Role">
+		insert into oa_role (
+			roleName,
+			createUser,
+			createTime,
+			powerGrade,
+			explains
+		) values(
+			#{role.roleName},
+			#{role.createUser},
+			#{role.createTime},
+			#{role.powerGrade},
+			#{role.explains}
+		)
+	</insert>
+	
+	<!--删除角色-->
+	<delete id="delete" parameterType="Integer">
+		delete from oa_role where  id = #{id}
+	</delete>
+
+	<!--修改角色-->
+	<update id="update" parameterType="com.app.OA.domain.Role">
+		update  oa_role set
+			roleName = #{role.roleName},
+			updateTime = #{role.updateTime},
+			updateUser = #{role.updateUser},
+			powerGrade = #{role.powerGrade},
+			explains = #{role.explains}
+		where 
+			id= #{role.id}
+	</update>
+
+	<!-- 查询所有角色 -->
+	<select id="selectAll" resultType="com.app.OA.domain.Role">
+		select * from oa_role
+	</select>
+	
+	<!-- 获取权限名称 -->
+	<select id="getRoleName" parameterType="Integer" resultType="String">
+		select powerName from oa_power where id = #{id}
+	</select>
+	
+</mapper>
